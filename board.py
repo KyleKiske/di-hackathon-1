@@ -67,38 +67,91 @@ class Board:
 
 class Move:
     def __init__(self, player: Player, board: Board, start: Square, end: Square) -> None:
+        if not (0 <= end[0] <= 7) or not (0 <= end[1] <= 7) or not (0 <= start[0] <= 7) or not (0 <= start[1] <= 7):
+            self.start = None
+            self.end = None
+            return None
         self.start = board.grid[start[0]][start[1]]
         self.end = board.grid[end[0]][end[1]]
         self.player = player
     def move(self):
+        if self.start is None:
+            print('invalid move, figure out of bounds.')
+            return
+        list_vert=['a','b','c','d','e','f','g','h']
+        list_horiz=['8','7','6','5','4','3','2','1']
+        print(f"move {list_vert[self.start.y_pos]}{list_horiz[self.start.x_pos]} to {list_vert[self.end.y_pos]}{list_horiz[self.end.x_pos]}")
+        fig = self.start.figure
         if self.start.figure is None:
             print("No figure on this square")
+            return
+        if not fig.can_move(tuple([self.end.x_pos, self.end.y_pos])):
+            # print('this figure cannot move this way')
             return
         elif (self.start.figure.color != self.player.color):
             print("This figure belongs to other player.")
             return
+        
         if (self.end.figure is None):
+            if  self.start.figure.moved == False:
+                self.start.figure.moved = True
             self.end.figure = self.start.figure
+            self.end.figure.x_pos = self.end.x_pos
+            self.end.figure.y_pos = self.end.y_pos
             self.start.figure = None
             return
         if (self.end.figure.color == self.player.color):
             print('Invalid move, same color figure on the end square')
             return
+        # if  self.start.figure.moved == False:
+        #     self.start.figure.moved = True
+        if (self.end.figure.color == self.player.color):
+            print('Invalid move, same color figure on the end square')
+            return
         if (self.end.figure.color != self.player.color):
             print('Zhri ego!')
+            if  self.start.figure.moved == False:
+                self.start.figure.moved = True
             self.end.figure = self.start.figure
+            self.end.figure.x_pos = self.end.x_pos
+            self.end.figure.y_pos = self.end.y_pos
             self.start.figure = None
             return
                 
 playerW = Player('w')
+playerB = Player('b')
 
 board = Board()
 board.default_placement()
 
 board.display()
 
-move = Move(playerW, board, (7,3),(0,4))
+move = Move(playerW, board, (6,4),(4,4))
+moveP = Move(playerW, board, (6,5),(5,5))
+moveP2 = Move(playerW, board, (6,6),(3,6))
+move2 = Move(playerB, board, (1,2),(3,2))
+moveR = Move(playerW, board, (7,0),(5,0))
+moveR2 = Move(playerW, board, (7,0),(4,0))
+moveRR = Move(playerW, board, (5,0),(5,4))
+moveB = Move(playerW, board, (7,5), (6,8))
+moveOOB = Move(playerW, board, (7,8), (6,7))
+# move3 = Move(playerW, board, (7,6),(5,5))
+# move4 = Move(playerW, board, (6,0),(0,4))
+# move5 = Move(playerW, board, (6,0),(0,4))
 
 move.move()
-
+board.display()
+moveP.move()
+board.display()
+moveP2.move()
+board.display()
+move2.move()
+board.display()
+moveR.move()
+board.display()
+moveR2.move()
+board.display()
+moveRR.move()
+board.display()
+moveB.move()
 board.display()

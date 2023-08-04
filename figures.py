@@ -8,9 +8,6 @@ class Figure:
         self.moved = False
         self.notation = ""
     def can_move(self, input: tuple) -> bool:
-        if not (0 <= input[0] <= 7) or not (0 <= input[1] <= 7):
-            print('invalid move, figure out of bounds.')
-            return False
         if (input[0] == self.x_pos and input[1] == self.y_pos):
             print('invalid move, figure stays in its place.')
             return False
@@ -27,20 +24,21 @@ class Pawn(Figure):
     def can_move(self, input: tuple) -> bool:
         if not (super().can_move(input)):
             return False
-        if (self.color == 'w' and (input[1] > self.y_pos)):
+        if (self.color == 'w' and (input[0] > self.y_pos)):
             print('invalid move, white pawn can\'t go like this.')
             return False
-        if (self.color == 'b' and (input[1] < self.y_pos)):
+        if (self.color == 'b' and (input[0] < self.y_pos)):
         # if (input[0] != 0) or self.y_pos + abs(input[1] > 2):
             print('invalid move, black pawn can\'t go like this.')
             return False
-        if self.color == 'W':
+        # list_values = list(range())
+        if self.color == 'w':
             if not self.moved:
-                if abs(self.y_pos - input[1]) > 2:
+                if abs(self.x_pos - input[0]) > 2:
                     return False
-                else:
-                    self.y_pos = input[1]
-                    self.moved = True
+            else:
+                if abs(self.x_pos - input[0]) > 1:
+                    return False
         return True
 
     def take():
@@ -56,8 +54,7 @@ class Knight(Figure):
     def can_move(self, input: tuple) -> bool:
         if not (super().can_move(input)):
             return False
-        elif (abs(self.x_pos - input[0]) + abs(self.x_pos - input[1]) != 3) or (self.x_pos == input[0]) or (self.y_pos == input[1]):
-        # elif (abs(input[0]) + abs(input[1])) != 3 or abs(input[0]) > 2 or abs(input[1]) > 2 or input[0] == 0 or input[1] == 0:
+        elif abs(self.x_pos - input[0]) * abs(self.x_pos - input[1]) != 2:
             print('invalid move, knight can\'t go like this.')
             return False
         if not self.moved:
