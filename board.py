@@ -3,7 +3,6 @@ from figures import *
 import re
 from player import Player
 
-
 class Square:
     def __init__(self, x, y, figure: Figure() = None) -> None:
         self.x_pos = x
@@ -86,12 +85,16 @@ class Move:
             print("No figure on this square")
             return
         if not fig.can_move(tuple([self.end.x_pos, self.end.y_pos])):
-            # print('this figure cannot move this way')
             return
         elif (self.start.figure.color != self.player.color):
             print("This figure belongs to other player.")
             return
-        
+        print(self.start.figure.route)
+        for x in self.start.figure.route:
+            print(x)
+            if board.grid[x[0]][x[1]].figure != None:
+                print("There is figure in the way.")
+                return
         if (self.end.figure is None):
             if  self.start.figure.moved == False:
                 self.start.figure.moved = True
@@ -103,20 +106,37 @@ class Move:
         if (self.end.figure.color == self.player.color):
             print('Invalid move, same color figure on the end square')
             return
-        # if  self.start.figure.moved == False:
-        #     self.start.figure.moved = True
-        if (self.end.figure.color == self.player.color):
+        
+        if (self.end.figure.route == self.player.color):
             print('Invalid move, same color figure on the end square')
             return
         if (self.end.figure.color != self.player.color):
-            print('Zhri ego!')
-            if  self.start.figure.moved == False:
-                self.start.figure.moved = True
-            self.end.figure = self.start.figure
-            self.end.figure.x_pos = self.end.x_pos
-            self.end.figure.y_pos = self.end.y_pos
-            self.start.figure = None
-            return
+            if isinstance(self.start.figure, Pawn):
+                if (abs(self.start.y_pos - self.end.y_pos) == 1):
+                    if (abs(self.start.x_pos - self.end.x_pos) == 1):
+                        print('Zhri ego!')
+                        if  self.start.figure.moved == False:
+                            self.start.figure.moved = True
+                        self.end.figure = self.start.figure
+                        self.end.figure.x_pos = self.end.x_pos
+                        self.end.figure.y_pos = self.end.y_pos
+                        self.start.figure = None
+                        return
+                    else:
+                        print("Pawn can't take that way.")
+                        return
+                else:
+                    print("Pawn can't take that way.")
+                    return
+            else:
+                print('Zhri ego!')
+                if  self.start.figure.moved == False:
+                    self.start.figure.moved = True
+                self.end.figure = self.start.figure
+                self.end.figure.x_pos = self.end.x_pos
+                self.end.figure.y_pos = self.end.y_pos
+                self.start.figure = None
+                return
                 
 playerW = Player('w')
 playerB = Player('b')
@@ -126,32 +146,54 @@ board.default_placement()
 
 board.display()
 
-move = Move(playerW, board, (6,4),(4,4))
-moveP = Move(playerW, board, (6,5),(5,5))
-moveP2 = Move(playerW, board, (6,6),(3,6))
+movePa2 = Move(playerW, board, (6,0),(4,0))
+movePb2 = Move(playerW, board, (6,1),(4,1))
+movePc2 = Move(playerW, board, (6,2),(4,2))
+movePd2 = Move(playerW, board, (6,3),(4,3))
+movePe2 = Move(playerW, board, (6,4),(4,4))
+movePf2 = Move(playerW, board, (6,5),(4,5))
+movePg2 = Move(playerW, board, (6,6),(4,6))
+movePh2 = Move(playerW, board, (6,7),(4,7))
+
 move2 = Move(playerB, board, (1,2),(3,2))
 moveR = Move(playerW, board, (7,0),(5,0))
 moveR2 = Move(playerW, board, (7,0),(4,0))
 moveRR = Move(playerW, board, (5,0),(5,4))
-moveB = Move(playerW, board, (7,5), (6,8))
+moveB = Move(playerW, board, (7,5), (5,7))
+moveB_Black = Move(playerB, board, (0,2), (2,0))
 moveOOB = Move(playerW, board, (7,8), (6,7))
-# move3 = Move(playerW, board, (7,6),(5,5))
-# move4 = Move(playerW, board, (6,0),(0,4))
-# move5 = Move(playerW, board, (6,0),(0,4))
 
-move.move()
-board.display()
-moveP.move()
-board.display()
-moveP2.move()
+moveQ = Move(playerW, board, (7,3),(4,3))
+moveQ_bl = Move(playerB, board, (0,3),(2,1))
+moveQ_b2 = Move(playerB, board, (2,1),(4,1))
+
+moveTake = Move(playerW, board, (4,2), (3,2))
+moveTakeReal = Move(playerW, board, (4,5), (3,2))
+
+movePa2.move()
+movePb2.move()
+movePc2.move()
+movePd2.move()
+moveR.move()
+moveRR.move()
+movePe2.move()
+movePf2.move()
+movePg2.move()
+movePh2.move()
+
 board.display()
 move2.move()
 board.display()
-moveR.move()
-board.display()
 moveR2.move()
 board.display()
-moveRR.move()
-board.display()
 moveB.move()
+moveB_Black.move()
+board.display()
+
+moveQ.move()
+moveQ_bl.move()
+moveQ_b2.move()
+board.display()
+moveTake.move()
+moveTakeReal.move()
 board.display()
