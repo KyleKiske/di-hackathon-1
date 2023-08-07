@@ -15,14 +15,27 @@ class Figure:
         return True
 
 class Pawn(Figure):
-    
-    def __init__(self, color, x_pos = 0, y_pos = 0) -> None:
+    def __init__(self, color, grid: list[list], x_pos = 0, y_pos = 0) -> None:
         super().__init__(color, x_pos, y_pos)
         self.route = []
         if self.color == 'w':
             self.notation = 'P'
         else :
             self.notation = 'p'
+        self.attacked_fields = self.calculate_attacked_fields(grid)
+    def calculate_attacked_fields(self, grid):
+        self.attacked_fields = []
+        if self.color == 'w':
+            if (self.x_pos - 1 >= 0) and (self.y_pos + 1 <= 7):
+                self.attacked_fields.append(tuple([self.x_pos - 1, self.y_pos + 1]))
+            if (self.x_pos - 1 >= 0) and (self.y_pos - 1 >= 0):            
+                self.attacked_fields.append(tuple([self.x_pos - 1, self.y_pos - 1]))
+        if self.color == 'b':
+            if (self.x_pos + 1 <= 7) and (self.y_pos + 1 <= 7):
+                self.attacked_fields.append(tuple([self.x_pos + 1, self.y_pos + 1]))
+            if (self.x_pos + 1 <= 7) and (self.y_pos - 1 >= 0):            
+                self.attacked_fields.append(tuple([self.x_pos + 1, self.y_pos - 1]))
+        return self.attacked_fields
     def can_move(self, input: tuple) -> bool:
         self.route = []
         if not (super().can_move(input)):
@@ -53,16 +66,25 @@ class Pawn(Figure):
         return True
 
 class Knight(Figure):
-    def __init__(self, color, x_pos = 0, y_pos = 0) -> None:
+    def __init__(self, color, grid: list[list], x_pos = 0, y_pos = 0) -> None:
         super().__init__(color, x_pos, y_pos)
         if self.color == 'w':
             self.notation = 'N'
         else :
             self.notation = 'n'
+        self.attacked_fields = self.calculate_attacked_fields(grid)
+    def calculate_attacked_fields(self, grid):
+        self.attacked_fields = []
+        for i in (-2, -1, 1, 2):
+            for j in (-2, -1, 1, 2):
+                if abs(i * j) == 2:
+                    if (7 >= self.x_pos + i >= 0) and (7 >= self.y_pos + j >= 0):
+                        self.attacked_fields.append(tuple([self.x_pos + i, self.y_pos + j]))
+        return self.attacked_fields
     def can_move(self, input: tuple) -> bool:
         if not (super().can_move(input)):
             return False
-        elif abs(self.x_pos - input[0]) * abs(self.x_pos - input[1]) != 2:
+        elif abs(self.x_pos - input[0]) * abs(self.y_pos - input[1]) != 2:
             print('invalid move, knight can\'t go like this.')
             return False
         if not self.moved:
@@ -72,13 +94,41 @@ class Knight(Figure):
     pass
 
 class Bishop(Figure):
-    def __init__(self, color, x_pos = 0, y_pos = 0) -> None:
+    def __init__(self, color, grid: list[list], x_pos = 0, y_pos = 0, ) -> None:
         super().__init__(color, x_pos, y_pos)
         self.route = []
         if self.color == 'w':
             self.notation = 'B'
         else :
             self.notation = 'b'
+        self.attacked_fields = self.calculate_attacked_fields(grid)
+    def calculate_attacked_fields(self, grid: list[list]):
+        self.attacked_fields = []
+        for i in range(1, 8):
+            j = i
+            if (7 >= self.x_pos + i >= 0) and (7 >= self.y_pos + j >= 0):
+                self.attacked_fields.append(tuple([self.x_pos + i,self.y_pos + j]))
+                if grid[self.x_pos + i][self.y_pos + j].figure != None:
+                    break
+        for i in range(-1, -8, -1):
+            j = i
+            if (7 >= self.x_pos + i >= 0) and (7 >= self.y_pos + j >= 0):
+                self.attacked_fields.append(tuple([self.x_pos + i,self.y_pos + j]))
+                if grid[self.x_pos + i][self.y_pos + j].figure != None:
+                    break
+        for i in range(1, 8):
+            j = -i
+            if (7 >= self.x_pos + i >= 0) and (7 >= self.y_pos + j >= 0):
+                self.attacked_fields.append(tuple([self.x_pos + i,self.y_pos + j]))
+                if grid[self.x_pos + i][self.y_pos + j].figure != None:
+                    break
+        for i in range(-1, -8, -1):
+            j = -i
+            if (7 >= self.x_pos + i >= 0) and (7 >= self.y_pos + j >= 0):
+                self.attacked_fields.append(tuple([self.x_pos + i,self.y_pos + j]))
+                if grid[self.x_pos + i][self.y_pos + j].figure != None:
+                    break
+        return self.attacked_fields
     def can_move(self, input: tuple) -> bool:
         self.route = []
         if not (super().can_move(input)):
@@ -119,13 +169,37 @@ class Bishop(Figure):
         return True
 
 class Rook(Figure):
-    def __init__(self, color, x_pos = 0, y_pos = 0) -> None:
+    def __init__(self, color, grid: list[list], x_pos = 0, y_pos = 0) -> None:
         super().__init__(color, x_pos, y_pos)
         self.route = []
         if self.color == 'w':
             self.notation = 'R'
         else :
             self.notation = 'r'
+        self.attacked_fields = self.calculate_attacked_fields(grid)
+    def calculate_attacked_fields(self,  grid: list[list]):
+        self.attacked_fields = []
+        for i in range(-1, -8, -1):
+            if (7 >= self.x_pos + i >= 0):
+                self.attacked_fields.append(tuple([self.x_pos + i, self.y_pos]))
+                if grid[self.x_pos + i][self.y_pos].figure != None:
+                    break
+        for i in range(1, 8):
+            if (7 >= self.x_pos + i >= 0):
+                self.attacked_fields.append(tuple([self.x_pos + i, self.y_pos]))
+                if grid[self.x_pos + i][self.y_pos].figure != None:
+                    break
+        for j in range(-1, -8, -1):
+            if (7 >= self.y_pos + j >= 0):
+                self.attacked_fields.append(tuple([self.x_pos, self.y_pos + j]))
+                if grid[self.x_pos][self.y_pos + j].figure != None:
+                    break
+        for j in range(1, 8):
+            if (7 >= self.y_pos + j >= 0):
+                self.attacked_fields.append(tuple([self.x_pos, self.y_pos + j]))
+                if grid[self.x_pos][self.y_pos + j].figure != None:
+                    break
+        return self.attacked_fields
     def can_move(self, input: tuple) -> bool:
         self.route = []
         if not (super().can_move(input)):
@@ -165,13 +239,61 @@ class Rook(Figure):
         return True        
 
 class Queen(Figure):
-    def __init__(self, color, x_pos = 0, y_pos = 0) -> None:
+    def __init__(self, color, grid: list[list], x_pos = 0, y_pos = 0) -> None:
         super().__init__(color, x_pos, y_pos)
         self.route = []
         if self.color == 'w':
             self.notation = 'Q'
         else :
             self.notation = 'q'
+        self.attacked_fields = self.calculate_attacked_fields(grid)
+    def calculate_attacked_fields(self, grid: list[list]):
+        self.attacked_fields = []
+        for i in range(1, 8):
+            j = i
+            if (7 >= self.x_pos + i >= 0) and (7 >= self.y_pos + j >= 0):
+                self.attacked_fields.append(tuple([self.x_pos + i,self.y_pos + j]))
+                if grid[self.x_pos + i][self.y_pos + j].figure != None:
+                    break
+        for i in range(-1, -8, -1):
+            j = i
+            if (7 >= self.x_pos + i >= 0) and (7 >= self.y_pos + j >= 0):
+                self.attacked_fields.append(tuple([self.x_pos + i,self.y_pos + j]))
+                if grid[self.x_pos + i][self.y_pos + j].figure != None:
+                    break
+        for i in range(1, 8):
+            j = -i
+            if (7 >= self.x_pos + i >= 0) and (7 >= self.y_pos + j >= 0):
+                self.attacked_fields.append(tuple([self.x_pos + i,self.y_pos + j]))
+                if grid[self.x_pos + i][self.y_pos + j].figure != None:
+                    break
+        for i in range(-1, -8, -1):
+            j = -i
+            if (7 >= self.x_pos + i >= 0) and (7 >= self.y_pos + j >= 0):
+                self.attacked_fields.append(tuple([self.x_pos + i, self.y_pos + j]))
+                if grid[self.x_pos + i][self.y_pos + j].figure != None:
+                    break
+        for i in range(-1, -8, -1):
+            if (7 >= self.x_pos + i >= 0):
+                self.attacked_fields.append(tuple([self.x_pos + i, self.y_pos]))
+                if grid[self.x_pos + i][self.y_pos].figure != None:
+                    break
+        for i in range(1, 8):
+            if (7 >= self.x_pos + i >= 0):
+                self.attacked_fields.append(tuple([self.x_pos + i, self.y_pos]))
+                if grid[self.x_pos + i][self.y_pos].figure != None:
+                    break
+        for j in range(-1, -8, -1):
+            if (7 >= self.y_pos + j >= 0):
+                self.attacked_fields.append(tuple([self.x_pos, self.y_pos + j]))
+                if grid[self.x_pos][self.y_pos + j].figure != None:
+                    break
+        for j in range(1, 8):
+            if (7 >= self.y_pos + j >= 0):
+                self.attacked_fields.append(tuple([self.x_pos, self.y_pos + j]))
+                if grid[self.x_pos][self.y_pos + j].figure != None:
+                    break
+        return self.attacked_fields
     def can_move(self, input: tuple) -> bool:
         self.route = []
         if not (super().can_move(input)):
@@ -235,12 +357,22 @@ class Queen(Figure):
         return True
 
 class King(Figure):
-    def __init__(self, color, x_pos = 0, y_pos = 0) -> None:
+    def __init__(self, color, grid: list[list], x_pos = 0, y_pos = 0) -> None:
         super().__init__(color, x_pos, y_pos)
         if self.color == 'w':
             self.notation = 'K'
         else :
             self.notation = 'k'
+        self.attacked_fields = self.calculate_attacked_fields(grid)
+    def calculate_attacked_fields(self, grid):
+        self.attacked_fields = []
+        for i in range(-1,2):
+            for j in range(-1,2):
+                if (7 >= self.x_pos + i >= 0) and (7 >= self.y_pos + j >= 0):
+                    if i == 0 and j == 0:
+                        continue
+                    self.attacked_fields.append(tuple([self.x_pos + i,self.y_pos + j]))
+        return self.attacked_fields
     def can_move(self, input: tuple) -> bool:
         if not (super().can_move(input)):
             return False

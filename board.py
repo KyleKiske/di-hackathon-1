@@ -21,6 +21,11 @@ class Board:
         for x in range(len(self.grid)):
             for y in range(len(self.grid[x])):
                 self.grid[x][y] = Square(x,y)
+        self.last_move = None
+        self.white_king_cheched = False
+        self.black_king_cheched = False
+        self.black_attacked_fields = []
+        self.white_attacked_fields = []
     def default_placement(self):
         fen_list = re.split("/| ", self.FEN)[:8]
         new_list = []
@@ -35,32 +40,50 @@ class Board:
         for x in range(len(self.grid)):
             for y in range(len(self.grid[x])):
                 if new_list[x][y] == 'r':
-                    self.grid[x][y].figure = Rook('b', x, y)
+                    self.grid[x][y].figure = Rook('b', self.grid, x, y)
                 elif new_list[x][y] == 'n':
-                    self.grid[x][y].figure = Knight('b', x, y)
+                    self.grid[x][y].figure = Knight('b', self.grid, x, y)
                 elif new_list[x][y] == 'b':
-                    self.grid[x][y].figure = Bishop('b', x, y)
+                    self.grid[x][y].figure = Bishop('b', self.grid, x, y)
                 elif new_list[x][y] == 'k':
-                    self.grid[x][y].figure = King('b', x, y)
+                    self.grid[x][y].figure = King('b', self.grid, x, y)
                 elif new_list[x][y] == 'q':
-                    self.grid[x][y].figure = Queen('b', x, y)
+                    self.grid[x][y].figure = Queen('b', self.grid, x, y)
                 elif new_list[x][y] == 'p':
-                    self.grid[x][y].figure = Pawn('b', x, y)
+                    self.grid[x][y].figure = Pawn('b', self.grid, x, y)
                 elif new_list[x][y] == 'R':
-                    self.grid[x][y].figure = Rook('w', x, y)
+                    self.grid[x][y].figure = Rook('w', self.grid, x, y)
                 elif new_list[x][y] == 'N':
-                    self.grid[x][y].figure = Knight('w', x, y)
+                    self.grid[x][y].figure = Knight('w', self.grid, x, y)
                 elif new_list[x][y] == 'B':
-                    self.grid[x][y].figure = Bishop('w', x, y)
+                    self.grid[x][y].figure = Bishop('w', self.grid, x, y)
                 elif new_list[x][y] == 'K':
-                    self.grid[x][y].figure = King('w', x, y)
+                    self.grid[x][y].figure = King('w', self.grid, x, y)
                 elif new_list[x][y] == 'Q':
-                    self.grid[x][y].figure = Queen('w', x, y)
+                    self.grid[x][y].figure = Queen('w', self.grid, x, y)
                 elif new_list[x][y] == 'P':
-                    self.grid[x][y].figure = Pawn('w', x, y)
+                    self.grid[x][y].figure = Pawn('w', self.grid, x, y)
                 else: self.grid[x][y].figure = None
-    def place_figure(self, figure: Figure):
-        self.grid[figure.x_pos][figure.y_pos] = figure.notation
+    def calculate_attacked_by_white(self):
+        self.white_attacked_fields = []
+        for i in range(8):
+            for j in range(8):
+                if self.grid[i][j].figure == None:
+                    continue
+                elif self.grid[i][j].figure.color == 'w':
+                    self.white_attacked_fields.extend(self.grid[i][j].figure.calculate_attacked_fields(self.grid))
+        self.white_attacked_fields = list(dict.fromkeys(self.white_attacked_fields))
+        return self.white_attacked_fields
+    def calculate_attacked_by_black(self):
+        self.black_attacked_fields = []
+        for i in range(8):
+            for j in range(8):
+                if self.grid[i][j].figure == None:
+                    continue
+                elif self.grid[i][j].figure.color == 'b':
+                    self.black_attacked_fields.extend(self.grid[i][j].figure.calculate_attacked_fields(self.grid))
+        self.black_attacked_fields = list(dict.fromkeys(self.black_attacked_fields))
+        return self.black_attacked_fields
     def display(self):
         print(np.matrix(self.grid))
 
@@ -73,43 +96,116 @@ class Move:
         self.start = board.grid[start[0]][start[1]]
         self.end = board.grid[end[0]][end[1]]
         self.player = player
+    def is_check_black(self):
+        for x in range(len(board.grid)):
+            for y in range(len(board.grid[x])):
+                if isinstance(board.grid[x][y].figure, King):
+                    if board.grid[x][y].figure.color == 'b':
+                        if board.calculate_attacked_by_white().count(tuple([x,y])):
+                            print("Black king is under attack!")
+                            board.black_king_cheched = True
+                            return True
+        return False
+    def is_check_white(self):
+        for x in range(len(board.grid)):
+            for y in range(len(board.grid[x])):
+                if isinstance(board.grid[x][y].figure, King):
+                    if board.grid[x][y].figure.color == 'w':
+                        if board.calculate_attacked_by_black().count(tuple([x,y])):
+                            print("White king is under attack!")
+                            board.white_king_cheched = True
+                            return True
+        return False
+    def is_checkmate():
+        pass
     def move(self):
         if self.start is None:
             print('invalid move, figure out of bounds.')
-            return
+            return False
         list_vert=['a','b','c','d','e','f','g','h']
         list_horiz=['8','7','6','5','4','3','2','1']
+        
         print(f"move {list_vert[self.start.y_pos]}{list_horiz[self.start.x_pos]} to {list_vert[self.end.y_pos]}{list_horiz[self.end.x_pos]}")
         fig = self.start.figure
         if self.start.figure is None:
             print("No figure on this square")
-            return
+            return False
+        tempStart = Square (self.start.x_pos, self.start.y_pos, self.start.figure)
+        tempEnd = Square (self.end.x_pos, self.end.y_pos, self.end.figure) 
         if not fig.can_move(tuple([self.end.x_pos, self.end.y_pos])):
-            return
+            return False
         elif (self.start.figure.color != self.player.color):
             print("This figure belongs to other player.")
-            return
+            return False
         print(self.start.figure.route)
         for x in self.start.figure.route:
             print(x)
             if board.grid[x[0]][x[1]].figure != None:
                 print("There is figure in the way.")
-                return
+                return False
         if (self.end.figure is None):
+            if isinstance(self.start.figure, Pawn):
+                if (abs(self.start.y_pos - self.end.y_pos) == 1):
+                    if (abs(self.start.x_pos - self.end.x_pos) == 1):
+                        if isinstance(board.last_move[0], Pawn):
+                            if self.end.y_pos == board.last_move[2].y_pos:
+                                if self.end.x_pos == ( (board.last_move[1].x_pos + board.last_move[2].x_pos) // 2):
+                                    print('google en passant')
+                                    tempPawn = board.grid[board.last_move[2].x_pos][board.last_move[2].y_pos].figure
+                                    self.end.figure = self.start.figure
+                                    self.end.figure.x_pos = self.end.x_pos
+                                    self.end.figure.y_pos = self.end.y_pos
+                                    self.start.figure = None
+                                    board.grid[board.last_move[2].x_pos][board.last_move[2].y_pos].figure = None
+                                    if tempStart.figure.color == 'w':
+                                        if self.is_check_white() :
+                                            print('Illegal move: White king is in check!')
+                                            self.start = tempStart
+                                            self.end = tempEnd
+                                            board.grid[tempStart.x_pos][tempStart.y_pos] = tempStart
+                                            board.grid[tempEnd.x_pos][tempEnd.y_pos] = tempEnd
+                                            board.grid[board.last_move[2].x_pos][board.last_move[2].y_pos].figure = tempPawn
+                                            return False
+                                    if tempStart.figure.color == 'b':
+                                        if self.is_check_black() :
+                                            print('Illegal move: Black king is in check!')
+                                            self.start = tempStart
+                                            self.end = tempEnd
+                                            board.grid[tempStart.x_pos][tempStart.y_pos] = tempStart
+                                            board.grid[tempEnd.x_pos][tempEnd.y_pos] = tempEnd
+                                            board.grid[board.last_move[2].x_pos][board.last_move[2].y_pos].figure = tempPawn
+                                            return False
+                                    return True
+                        else:
+                            print("Pawn can't move diagonally.")
+                            return False
+
             if  self.start.figure.moved == False:
                 self.start.figure.moved = True
             self.end.figure = self.start.figure
             self.end.figure.x_pos = self.end.x_pos
             self.end.figure.y_pos = self.end.y_pos
             self.start.figure = None
-            return
+            if tempStart.figure.color == 'w':
+                if self.is_check_white() :
+                    print('Illegal move: White king is in check!')
+                    board.grid[tempStart.x_pos][tempStart.y_pos] = tempStart
+                    board.grid[tempEnd.x_pos][tempEnd.y_pos] = tempEnd
+                    return False
+            if tempStart.figure.color == 'b':
+                if self.is_check_black() :
+                    print('Illegal move: Black king is in check!')
+                    board.grid[tempStart.x_pos][tempStart.y_pos] = tempStart
+                    board.grid[tempEnd.x_pos][tempEnd.y_pos] = tempEnd
+                    return False
+            board.last_move = [self.end.figure, self.start, self.end]
+            return True
         if (self.end.figure.color == self.player.color):
             print('Invalid move, same color figure on the end square')
-            return
-        
+            return False
         if (self.end.figure.route == self.player.color):
-            print('Invalid move, same color figure on the end square')
-            return
+            print('Invalid move, same color figure in the way square')
+            return False
         if (self.end.figure.color != self.player.color):
             if isinstance(self.start.figure, Pawn):
                 if (abs(self.start.y_pos - self.end.y_pos) == 1):
@@ -121,13 +217,30 @@ class Move:
                         self.end.figure.x_pos = self.end.x_pos
                         self.end.figure.y_pos = self.end.y_pos
                         self.start.figure = None
-                        return
+                        if tempStart.figure.color == 'w':
+                            if self.is_check_white() :
+                                print('Illegal move: White king is in check!')
+                                self.start = tempStart
+                                self.end = tempEnd
+                                board.grid[tempStart.x_pos][tempStart.y_pos] = tempStart
+                                board.grid[tempEnd.x_pos][tempEnd.y_pos] = tempEnd
+                                return False
+                        if tempStart.figure.color == 'b':
+                            if self.is_check_black() :
+                                print('Illegal move: Black king is in check!')
+                                self.start = tempStart
+                                self.end = tempEnd
+                                board.grid[tempStart.x_pos][tempStart.y_pos] = tempStart
+                                board.grid[tempEnd.x_pos][tempEnd.y_pos] = tempEnd
+                                return False
+                        board.last_move = [self.start, self.end]
+                        return True
                     else:
                         print("Pawn can't take that way.")
-                        return
+                        return False
                 else:
                     print("Pawn can't take that way.")
-                    return
+                    return False
             else:
                 print('Zhri ego!')
                 if  self.start.figure.moved == False:
@@ -136,7 +249,24 @@ class Move:
                 self.end.figure.x_pos = self.end.x_pos
                 self.end.figure.y_pos = self.end.y_pos
                 self.start.figure = None
-                return
+                if tempStart.figure.color == 'w':
+                    if self.is_check_white() :
+                        print('Illegal move: White king is in check!')
+                        self.start = tempStart
+                        self.end = tempEnd
+                        board.grid[tempStart.x_pos][tempStart.y_pos] = tempStart
+                        board.grid[tempEnd.x_pos][tempEnd.y_pos] = tempEnd
+                        return False
+                if tempStart.figure.color == 'b':
+                    if self.is_check_black() :
+                        print('Illegal move: Black king is in check!')
+                        self.start = tempStart
+                        self.end = tempEnd
+                        board.grid[tempStart.x_pos][tempStart.y_pos] = tempStart
+                        board.grid[tempEnd.x_pos][tempEnd.y_pos] = tempEnd
+                        return False
+                board.last_move = [self.start, self.end]
+                return True
                 
 playerW = Player('w')
 playerB = Player('b')
@@ -146,54 +276,53 @@ board.default_placement()
 
 board.display()
 
+print('total white attack method')
+print(board.calculate_attacked_by_white())
+print(board.black_king_cheched)
+print('total black attack')
+print(board.calculate_attacked_by_black())
+
+board.display()
+
 movePa2 = Move(playerW, board, (6,0),(4,0))
 movePb2 = Move(playerW, board, (6,1),(4,1))
 movePc2 = Move(playerW, board, (6,2),(4,2))
 movePd2 = Move(playerW, board, (6,3),(4,3))
 movePe2 = Move(playerW, board, (6,4),(4,4))
-movePf2 = Move(playerW, board, (6,5),(4,5))
-movePg2 = Move(playerW, board, (6,6),(4,6))
-movePh2 = Move(playerW, board, (6,7),(4,7))
 
-move2 = Move(playerB, board, (1,2),(3,2))
-moveR = Move(playerW, board, (7,0),(5,0))
-moveR2 = Move(playerW, board, (7,0),(4,0))
-moveRR = Move(playerW, board, (5,0),(5,4))
-moveB = Move(playerW, board, (7,5), (5,7))
-moveB_Black = Move(playerB, board, (0,2), (2,0))
-moveOOB = Move(playerW, board, (7,8), (6,7))
-
-moveQ = Move(playerW, board, (7,3),(4,3))
-moveQ_bl = Move(playerB, board, (0,3),(2,1))
-moveQ_b2 = Move(playerB, board, (2,1),(4,1))
-
-moveTake = Move(playerW, board, (4,2), (3,2))
-moveTakeReal = Move(playerW, board, (4,5), (3,2))
+moveNB1 = Move(playerB, board, (0,1),(2,0))
 
 movePa2.move()
 movePb2.move()
 movePc2.move()
 movePd2.move()
-moveR.move()
-moveRR.move()
+
+movePc4 = Move(playerW, board, (4,2),(3,2))
+movePc5 = Move(playerW, board, (3,2),(2,2))
+movePc6 = Move(playerW, board, (2,2),(1,3))
+movePb7 = Move(playerB, board, (1,2),(2,2))
+
+movePe2 = Move(playerW, board, (6,4),(4,4))
+movePe4 = Move(playerW, board, (4,4),(3,4))
+movePe5 = Move(playerW, board, (3,4),(2,4))
+
+movePc4.move()
+movePc5.move()
+movePc6.move()
+movePb7.move()
+
 movePe2.move()
-movePf2.move()
-movePg2.move()
-movePh2.move()
+movePe4.move()
+movePe5.move()
 
-board.display()
-move2.move()
-board.display()
-moveR2.move()
-board.display()
-moveB.move()
-moveB_Black.move()
+print('total white attack method after moves') 
+print(board.calculate_attacked_by_white())
+print(board.black_king_cheched)
 board.display()
 
-moveQ.move()
-moveQ_bl.move()
-moveQ_b2.move()
-board.display()
-moveTake.move()
-moveTakeReal.move()
+moveKtakesPawn = Move(playerB, board, (0,4),(1,3))
+moveKtakesPawn.move()
+moveBtakesPawn = Move(playerB, board, (0,2),(1,3))
+moveBtakesPawn.move()
+moveNB1.move()
 board.display()
