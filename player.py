@@ -1,4 +1,3 @@
 class Player:
-    def __init__(self, color = 'w') -> None:
+    def __init__(self, color = 'white') -> None:
         self.color = color
-        
