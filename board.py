@@ -321,7 +321,7 @@ def play():
                 else:
                     board.display()
 
-
+# DOWN BELOW IS A SIMULATION OF POSSIBLE MOVES TO GET TO CHECK STATE
 
 # print('total white attack method')
 # print(board.calculate_attacked_by_white())
