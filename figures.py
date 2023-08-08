@@ -1,5 +1,5 @@
 class Figure:
-    def __init__(self, color = 'w', x_pos = 0, y_pos = 0) -> None:
+    def __init__(self, color = 'white', x_pos = 0, y_pos = 0) -> None:
         if not (0 <= x_pos <= 7) or not (0 <= y_pos <= 7):
             print('invalid placement of figure')
         self.x_pos = x_pos
@@ -8,6 +8,7 @@ class Figure:
         self.moved = False
         self.notation = ""
         self.route = []
+        self.name = ""
     def can_move(self, input: tuple) -> bool:
         if (input[0] == self.x_pos and input[1] == self.y_pos):
             print('invalid move, figure stays in its place.')
@@ -18,19 +19,20 @@ class Pawn(Figure):
     def __init__(self, color, grid: list[list], x_pos = 0, y_pos = 0) -> None:
         super().__init__(color, x_pos, y_pos)
         self.route = []
-        if self.color == 'w':
+        if self.color == 'white':
             self.notation = 'P'
         else :
             self.notation = 'p'
         self.attacked_fields = self.calculate_attacked_fields(grid)
+        self.name = "Pawn"
     def calculate_attacked_fields(self, grid):
         self.attacked_fields = []
-        if self.color == 'w':
+        if self.color == 'white':
             if (self.x_pos - 1 >= 0) and (self.y_pos + 1 <= 7):
                 self.attacked_fields.append(tuple([self.x_pos - 1, self.y_pos + 1]))
             if (self.x_pos - 1 >= 0) and (self.y_pos - 1 >= 0):            
                 self.attacked_fields.append(tuple([self.x_pos - 1, self.y_pos - 1]))
-        if self.color == 'b':
+        if self.color == 'black':
             if (self.x_pos + 1 <= 7) and (self.y_pos + 1 <= 7):
                 self.attacked_fields.append(tuple([self.x_pos + 1, self.y_pos + 1]))
             if (self.x_pos + 1 <= 7) and (self.y_pos - 1 >= 0):            
@@ -40,7 +42,7 @@ class Pawn(Figure):
         self.route = []
         if not (super().can_move(input)):
             return False
-        if self.color == 'w':
+        if self.color == 'white':
             if self.x_pos < input[0]:
                 print("Pawn can't move backwards.")
                 return False
@@ -68,11 +70,12 @@ class Pawn(Figure):
 class Knight(Figure):
     def __init__(self, color, grid: list[list], x_pos = 0, y_pos = 0) -> None:
         super().__init__(color, x_pos, y_pos)
-        if self.color == 'w':
+        if self.color == 'white':
             self.notation = 'N'
         else :
             self.notation = 'n'
         self.attacked_fields = self.calculate_attacked_fields(grid)
+        self.name = "Knight"
     def calculate_attacked_fields(self, grid):
         self.attacked_fields = []
         for i in (-2, -1, 1, 2):
@@ -97,11 +100,12 @@ class Bishop(Figure):
     def __init__(self, color, grid: list[list], x_pos = 0, y_pos = 0, ) -> None:
         super().__init__(color, x_pos, y_pos)
         self.route = []
-        if self.color == 'w':
+        if self.color == 'white':
             self.notation = 'B'
         else :
             self.notation = 'b'
         self.attacked_fields = self.calculate_attacked_fields(grid)
+        self.name = "Bishop"
     def calculate_attacked_fields(self, grid: list[list]):
         self.attacked_fields = []
         for i in range(1, 8):
@@ -172,11 +176,12 @@ class Rook(Figure):
     def __init__(self, color, grid: list[list], x_pos = 0, y_pos = 0) -> None:
         super().__init__(color, x_pos, y_pos)
         self.route = []
-        if self.color == 'w':
+        if self.color == 'white':
             self.notation = 'R'
         else :
             self.notation = 'r'
         self.attacked_fields = self.calculate_attacked_fields(grid)
+        self.name = "Rook"
     def calculate_attacked_fields(self,  grid: list[list]):
         self.attacked_fields = []
         for i in range(-1, -8, -1):
@@ -242,11 +247,12 @@ class Queen(Figure):
     def __init__(self, color, grid: list[list], x_pos = 0, y_pos = 0) -> None:
         super().__init__(color, x_pos, y_pos)
         self.route = []
-        if self.color == 'w':
+        if self.color == 'white':
             self.notation = 'Q'
         else :
             self.notation = 'q'
         self.attacked_fields = self.calculate_attacked_fields(grid)
+        self.name = "Queen"
     def calculate_attacked_fields(self, grid: list[list]):
         self.attacked_fields = []
         for i in range(1, 8):
@@ -359,11 +365,12 @@ class Queen(Figure):
 class King(Figure):
     def __init__(self, color, grid: list[list], x_pos = 0, y_pos = 0) -> None:
         super().__init__(color, x_pos, y_pos)
-        if self.color == 'w':
+        if self.color == 'white':
             self.notation = 'K'
         else :
             self.notation = 'k'
         self.attacked_fields = self.calculate_attacked_fields(grid)
+        self.name = "King"
     def calculate_attacked_fields(self, grid):
         self.attacked_fields = []
         for i in range(-1,2):

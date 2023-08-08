@@ -40,29 +40,29 @@ class Board:
         for x in range(len(self.grid)):
             for y in range(len(self.grid[x])):
                 if new_list[x][y] == 'r':
-                    self.grid[x][y].figure = Rook('b', self.grid, x, y)
+                    self.grid[x][y].figure = Rook('black', self.grid, x, y)
                 elif new_list[x][y] == 'n':
-                    self.grid[x][y].figure = Knight('b', self.grid, x, y)
+                    self.grid[x][y].figure = Knight('black', self.grid, x, y)
                 elif new_list[x][y] == 'b':
-                    self.grid[x][y].figure = Bishop('b', self.grid, x, y)
+                    self.grid[x][y].figure = Bishop('black', self.grid, x, y)
                 elif new_list[x][y] == 'k':
-                    self.grid[x][y].figure = King('b', self.grid, x, y)
+                    self.grid[x][y].figure = King('black', self.grid, x, y)
                 elif new_list[x][y] == 'q':
-                    self.grid[x][y].figure = Queen('b', self.grid, x, y)
+                    self.grid[x][y].figure = Queen('black', self.grid, x, y)
                 elif new_list[x][y] == 'p':
-                    self.grid[x][y].figure = Pawn('b', self.grid, x, y)
+                    self.grid[x][y].figure = Pawn('black', self.grid, x, y)
                 elif new_list[x][y] == 'R':
-                    self.grid[x][y].figure = Rook('w', self.grid, x, y)
+                    self.grid[x][y].figure = Rook('white', self.grid, x, y)
                 elif new_list[x][y] == 'N':
-                    self.grid[x][y].figure = Knight('w', self.grid, x, y)
+                    self.grid[x][y].figure = Knight('white', self.grid, x, y)
                 elif new_list[x][y] == 'B':
-                    self.grid[x][y].figure = Bishop('w', self.grid, x, y)
+                    self.grid[x][y].figure = Bishop('white', self.grid, x, y)
                 elif new_list[x][y] == 'K':
-                    self.grid[x][y].figure = King('w', self.grid, x, y)
+                    self.grid[x][y].figure = King('white', self.grid, x, y)
                 elif new_list[x][y] == 'Q':
-                    self.grid[x][y].figure = Queen('w', self.grid, x, y)
+                    self.grid[x][y].figure = Queen('white', self.grid, x, y)
                 elif new_list[x][y] == 'P':
-                    self.grid[x][y].figure = Pawn('w', self.grid, x, y)
+                    self.grid[x][y].figure = Pawn('white', self.grid, x, y)
                 else: self.grid[x][y].figure = None
     def calculate_attacked_by_white(self):
         self.white_attacked_fields = []
@@ -70,7 +70,7 @@ class Board:
             for j in range(8):
                 if self.grid[i][j].figure == None:
                     continue
-                elif self.grid[i][j].figure.color == 'w':
+                elif self.grid[i][j].figure.color == 'white':
                     self.white_attacked_fields.extend(self.grid[i][j].figure.calculate_attacked_fields(self.grid))
         self.white_attacked_fields = list(dict.fromkeys(self.white_attacked_fields))
         return self.white_attacked_fields
@@ -80,7 +80,7 @@ class Board:
             for j in range(8):
                 if self.grid[i][j].figure == None:
                     continue
-                elif self.grid[i][j].figure.color == 'b':
+                elif self.grid[i][j].figure.color == 'black':
                     self.black_attacked_fields.extend(self.grid[i][j].figure.calculate_attacked_fields(self.grid))
         self.black_attacked_fields = list(dict.fromkeys(self.black_attacked_fields))
         return self.black_attacked_fields
@@ -100,7 +100,7 @@ class Move:
         for x in range(len(board.grid)):
             for y in range(len(board.grid[x])):
                 if isinstance(board.grid[x][y].figure, King):
-                    if board.grid[x][y].figure.color == 'b':
+                    if board.grid[x][y].figure.color == 'black':
                         if board.calculate_attacked_by_white().count(tuple([x,y])):
                             print("Black king is under attack!")
                             board.black_king_cheched = True
@@ -110,7 +110,7 @@ class Move:
         for x in range(len(board.grid)):
             for y in range(len(board.grid[x])):
                 if isinstance(board.grid[x][y].figure, King):
-                    if board.grid[x][y].figure.color == 'w':
+                    if board.grid[x][y].figure.color == 'white':
                         if board.calculate_attacked_by_black().count(tuple([x,y])):
                             print("White king is under attack!")
                             board.white_king_cheched = True
@@ -157,7 +157,7 @@ class Move:
                                     self.end.figure.y_pos = self.end.y_pos
                                     self.start.figure = None
                                     board.grid[board.last_move[2].x_pos][board.last_move[2].y_pos].figure = None
-                                    if tempStart.figure.color == 'w':
+                                    if tempStart.figure.color == 'white':
                                         if self.is_check_white() :
                                             print('Illegal move: White king is in check!')
                                             self.start = tempStart
@@ -166,7 +166,7 @@ class Move:
                                             board.grid[tempEnd.x_pos][tempEnd.y_pos] = tempEnd
                                             board.grid[board.last_move[2].x_pos][board.last_move[2].y_pos].figure = tempPawn
                                             return False
-                                    if tempStart.figure.color == 'b':
+                                    if tempStart.figure.color == 'black':
                                         if self.is_check_black() :
                                             print('Illegal move: Black king is in check!')
                                             self.start = tempStart
@@ -186,13 +186,13 @@ class Move:
             self.end.figure.x_pos = self.end.x_pos
             self.end.figure.y_pos = self.end.y_pos
             self.start.figure = None
-            if tempStart.figure.color == 'w':
+            if tempStart.figure.color == 'white':
                 if self.is_check_white() :
                     print('Illegal move: White king is in check!')
                     board.grid[tempStart.x_pos][tempStart.y_pos] = tempStart
                     board.grid[tempEnd.x_pos][tempEnd.y_pos] = tempEnd
                     return False
-            if tempStart.figure.color == 'b':
+            if tempStart.figure.color == 'black':
                 if self.is_check_black() :
                     print('Illegal move: Black king is in check!')
                     board.grid[tempStart.x_pos][tempStart.y_pos] = tempStart
@@ -217,7 +217,7 @@ class Move:
                         self.end.figure.x_pos = self.end.x_pos
                         self.end.figure.y_pos = self.end.y_pos
                         self.start.figure = None
-                        if tempStart.figure.color == 'w':
+                        if tempStart.figure.color == 'white':
                             if self.is_check_white() :
                                 print('Illegal move: White king is in check!')
                                 self.start = tempStart
@@ -225,7 +225,7 @@ class Move:
                                 board.grid[tempStart.x_pos][tempStart.y_pos] = tempStart
                                 board.grid[tempEnd.x_pos][tempEnd.y_pos] = tempEnd
                                 return False
-                        if tempStart.figure.color == 'b':
+                        if tempStart.figure.color == 'black':
                             if self.is_check_black() :
                                 print('Illegal move: Black king is in check!')
                                 self.start = tempStart
@@ -249,7 +249,7 @@ class Move:
                 self.end.figure.x_pos = self.end.x_pos
                 self.end.figure.y_pos = self.end.y_pos
                 self.start.figure = None
-                if tempStart.figure.color == 'w':
+                if tempStart.figure.color == 'white':
                     if self.is_check_white() :
                         print('Illegal move: White king is in check!')
                         self.start = tempStart
@@ -257,7 +257,7 @@ class Move:
                         board.grid[tempStart.x_pos][tempStart.y_pos] = tempStart
                         board.grid[tempEnd.x_pos][tempEnd.y_pos] = tempEnd
                         return False
-                if tempStart.figure.color == 'b':
+                if tempStart.figure.color == 'black':
                     if self.is_check_black() :
                         print('Illegal move: Black king is in check!')
                         self.start = tempStart
@@ -268,61 +268,110 @@ class Move:
                 board.last_move = [self.start, self.end]
                 return True
                 
-playerW = Player('w')
-playerB = Player('b')
+playerW = Player('white')
+playerB = Player('black')
 
 board = Board()
-board.default_placement()
+# board.default_placement()
 
-board.display()
+# board.display()
 
-print('total white attack method')
-print(board.calculate_attacked_by_white())
-print(board.black_king_cheched)
-print('total black attack')
-print(board.calculate_attacked_by_black())
+def player_input(player):
+    print (f"{player.color} turn...\n")
+    while True:
+        startrow = int(input("Enter start row: "))
+        startcolumn = int(input("Enter start column: "))
+        endrow = int(input("Enter end row: "))
+        endcolumn = int(input("Enter end column: "))
+        if not (7 >= startrow >= 0  or 7 >= startcolumn >= 0 or 7 >= endrow >= 0  or 7 >= endcolumn >= 0):
+            print("This field is not on the board, try to write in proper field.")
+        # elif ((("X", row, column) in list_of_inputs) or (("O", row, column) in list_of_inputs)):
+            # print("This field is occupied, try to write in another field.")
+        else:
+            break
+    return (player, tuple([startrow,startcolumn]), tuple([endrow, endcolumn]))
 
-board.display()
+def play():
+    board = Board()
+    board.default_placement()
+    board.display()
+    list_of_moves = []
+    while True:
+        if len(list_of_moves) % 2 == 0:
+            while True:
+                player_move = player_input(playerW)
+                moveW = Move(player_move[0], board, player_move[1], player_move[2])
+                result = moveW.move()
+                if result:
+                    list_of_moves.append(moveW)
+                    board.display()
+                    break
+                else:
+                    board.display()
+                
+        else:
+            while True:
+                player_move = player_input(playerB)
+                moveB = Move(player_move[0], board, player_move[1], player_move[2])
+                result = moveB.move()
+                if result:
+                    list_of_moves.append(moveB)
+                    board.display()
+                    break
+                else:
+                    board.display()
 
-movePa2 = Move(playerW, board, (6,0),(4,0))
-movePb2 = Move(playerW, board, (6,1),(4,1))
-movePc2 = Move(playerW, board, (6,2),(4,2))
-movePd2 = Move(playerW, board, (6,3),(4,3))
-movePe2 = Move(playerW, board, (6,4),(4,4))
 
-moveNB1 = Move(playerB, board, (0,1),(2,0))
 
-movePa2.move()
-movePb2.move()
-movePc2.move()
-movePd2.move()
+# print('total white attack method')
+# print(board.calculate_attacked_by_white())
+# print(board.black_king_cheched)
+# print('total black attack')
+# print(board.calculate_attacked_by_black())
 
-movePc4 = Move(playerW, board, (4,2),(3,2))
-movePc5 = Move(playerW, board, (3,2),(2,2))
-movePc6 = Move(playerW, board, (2,2),(1,3))
-movePb7 = Move(playerB, board, (1,2),(2,2))
+# board.display()
 
-movePe2 = Move(playerW, board, (6,4),(4,4))
-movePe4 = Move(playerW, board, (4,4),(3,4))
-movePe5 = Move(playerW, board, (3,4),(2,4))
+# movePa2 = Move(playerW, board, (6,0),(4,0))
+# movePb2 = Move(playerW, board, (6,1),(4,1))
+# movePc2 = Move(playerW, board, (6,2),(4,2))
+# movePd2 = Move(playerW, board, (6,3),(4,3))
+# movePe2 = Move(playerW, board, (6,4),(4,4))
 
-movePc4.move()
-movePc5.move()
-movePc6.move()
-movePb7.move()
+# moveNB1 = Move(playerB, board, (0,1),(2,0))
 
-movePe2.move()
-movePe4.move()
-movePe5.move()
+# movePa2.move()
+# movePb2.move()
+# movePc2.move()
+# movePd2.move()
 
-print('total white attack method after moves') 
-print(board.calculate_attacked_by_white())
-print(board.black_king_cheched)
-board.display()
+# movePc4 = Move(playerW, board, (4,2),(3,2))
+# movePc5 = Move(playerW, board, (3,2),(2,2))
+# movePc6 = Move(playerW, board, (2,2),(1,3))
+# movePb7 = Move(playerB, board, (1,2),(2,2))
 
-moveKtakesPawn = Move(playerB, board, (0,4),(1,3))
-moveKtakesPawn.move()
-moveBtakesPawn = Move(playerB, board, (0,2),(1,3))
-moveBtakesPawn.move()
-moveNB1.move()
-board.display()
+# movePe2 = Move(playerW, board, (6,4),(4,4))
+# movePe4 = Move(playerW, board, (4,4),(3,4))
+# movePe5 = Move(playerW, board, (3,4),(2,4))
+
+# movePc4.move()
+# movePc5.move()
+# movePc6.move()
+# movePb7.move()
+
+# movePe2.move()
+# movePe4.move()
+# movePe5.move()
+
+# print('total white attack method after moves') 
+# print(board.calculate_attacked_by_white())
+# print(board.black_king_cheched)
+# board.display()
+
+# moveKtakesPawn = Move(playerB, board, (0,4),(1,3))
+# moveKtakesPawn.move()
+# moveBtakesPawn = Move(playerB, board, (0,2),(1,3))
+# moveBtakesPawn.move()
+# moveNB1.move()
+# board.display()
+
+play()
