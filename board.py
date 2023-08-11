@@ -272,7 +272,7 @@ playerW = Player('white')
 playerB = Player('black')
 
 board = Board()
-# board.default_placement()
+board.default_placement()
 
 # board.display()
 
