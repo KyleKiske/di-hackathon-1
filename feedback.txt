@@ -1,0 +1,9 @@
+Mikhael Belkin & Dmitri Romanov: chess on the terminal
+A chess game is always impressive because of its logic and mathematical concepts. So kudos for that!
+Your knowledga and usage of OOP is very impressive! 
+I just wish you dah used more concepts studied during week1 - week4. Like Databases and API/JSON
+video presentation in time : yes 10/10
+Python OOP: 10/10
+Databases: 0/10
+API/JSON: 0/10
+General score: 6
